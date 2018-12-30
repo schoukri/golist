@@ -1,41 +1,29 @@
 package golist
 
 import (
-	"errors"
 	"fmt"
+	"math"
 	"math/rand"
 	"sort"
+	"time"
 )
 
-// SliceInt is a Slice of integers.
+// SliceInt is a slice of integers.
 type SliceInt struct {
 	data []int
 }
 
-// SliceIntFilterer defines the interface for Filter functions.
-// type SliceIntFilterer interface {
-// 	func(elem int) bool
-// }
-
-// SliceIntTransformer defines the interface for Transfor functions.
-// type SliceIntTransformer interface {
-// 	func(elem int) int
-// }
-
-// NewSliceInt returns a pointer to a SliceInt initialized with the specified elements.
+// NewSliceInt returns a pointer to a new SliceInt initialized with the specified elements.
 func NewSliceInt(elems ...int) *SliceInt {
-	s := newSliceInt()
-	s.data = append(s.data, elems...)
-	return s
-}
-
-func newSliceInt() *SliceInt {
 	s := new(SliceInt)
-	s.data = make([]int, 0)
+	s.data = make([]int, len(elems))
+	for i := 0; i < len(elems); i++ {
+		s.data[i] = elems[i]
+	}
 	return s
 }
 
-// Append adds the elements to the end of SliceInt
+// Append adds the elements to the end of SliceInt.
 func (s *SliceInt) Append(elems ...int) *SliceInt {
 	if s == nil {
 		return nil
@@ -44,7 +32,7 @@ func (s *SliceInt) Append(elems ...int) *SliceInt {
 	return s
 }
 
-// Prepend adds the elements to the beginning of SliceInt
+// Prepend adds the elements to the beginning of SliceInt.
 func (s *SliceInt) Prepend(elems ...int) *SliceInt {
 	if s == nil {
 		return nil
@@ -53,32 +41,49 @@ func (s *SliceInt) Prepend(elems ...int) *SliceInt {
 	return s
 }
 
-// Insert inserts the value into the slice at the specified index.
-func (s *SliceInt) Insert(index, value int) *SliceInt {
-	// Grow the slice by one element.
-	s.data = s.data[0 : len(s.data)+1]
-	// Use copy to move the upper part of the slice out of the way and open a hole.
-	copy(s.data[index+1:], s.data[index:])
-	// Store the new value.
-	s.data[index] = value
-	// Return the result.
+// At returns the element in SliceInt at the specified index.
+func (s *SliceInt) At(index int) int {
+	if s.data == nil || len(s.data) == 0 {
+		panic("SliceInt does not contain any elements")
+	}
+
+	if index >= len(s.data) || index < 0 {
+		panic(fmt.Sprintf("index %d outside the range of SliceInt", index))
+	}
+
+	return s.data[index]
+}
+
+// Set sets the element of SliceInt at the specified index.
+func (s *SliceInt) Set(index, elem int) *SliceInt {
+	if s == nil {
+		return nil
+	}
+	s.data[index] = elem
 	return s
 }
 
-// Data returns the underlying slice of data.
-func (s *SliceInt) Data() []int {
+// Insert inserts the elements into SliceInt at the specified index.
+func (s *SliceInt) Insert(index int, elems ...int) *SliceInt {
 	if s == nil {
 		return nil
 	}
-	return s.data
-}
 
-// Sort sorts the elements of SliceInt in increasing order.
-func (s *SliceInt) Sort() *SliceInt {
-	if s == nil {
-		return nil
+	// Grow the slice by the number of elements (using the zero value)
+	var zero int
+	for i := 0; i < len(elems); i++ {
+		s.data = append(s.data, zero)
 	}
-	sort.Ints(s.data)
+
+	// Use copy to move the upper part of the slice out of the way and open a hole.
+	copy(s.data[index+len(elems):], s.data[index:])
+
+	// Store the new values
+	for i := 0; i < len(elems); i++ {
+		s.data[index+i] = elems[i]
+	}
+
+	// Return the result.
 	return s
 }
 
@@ -108,26 +113,33 @@ func (s *SliceInt) Transform(fn func(elem int) int) *SliceInt {
 	return s
 }
 
-// Unique returns a SliceInt containing only unique elements.
+// Unique modifies SliceInt to keep only the first occurrence of each element (removing any duplicates).
 func (s *SliceInt) Unique() *SliceInt {
 	if s == nil {
 		return nil
 	}
-	sort.Ints(s.data)
-	j := 0
-	for i := 1; i < len(s.data); i++ {
-		if s.data[j] == s.data[i] {
-			continue
+	seen := make(map[int]struct{})
+	data := s.data[:0]
+	for _, elem := range s.data {
+		if _, ok := seen[elem]; !ok {
+			data = append(data, elem)
+			seen[elem] = struct{}{}
 		}
-		j++
-		s.data[i], s.data[j] = s.data[j], s.data[i]
 	}
-	s.data = s.data[:j+1]
-
+	s.data = data
 	return s
 }
 
-// Reverse returns a SliceInt with the elements in reverse order.
+// Sort sorts the elements of SliceInt in increasing order.
+func (s *SliceInt) Sort() *SliceInt {
+	if s == nil {
+		return nil
+	}
+	sort.Ints(s.data)
+	return s
+}
+
+// Reverse reverses the order of the elements of SliceInt.
 func (s *SliceInt) Reverse() *SliceInt {
 	if s == nil {
 		return nil
@@ -141,69 +153,80 @@ func (s *SliceInt) Reverse() *SliceInt {
 	return s
 }
 
-// Shuffle returns a SliceInt with the elements in random order.
-func (s *SliceInt) Shuffle() *SliceInt {
+// Shuffle randomly shuffles the order of the elements in SliceInt.
+func (s *SliceInt) Shuffle(seed int64) *SliceInt {
 	if s == nil {
 		return nil
 	}
 
-	for i := len(s.data) - 1; i > 0; i-- {
-		j := rand.Intn(i + 1)
-		s.data[i], s.data[j] = s.data[j], s.data[i]
+	if seed == 0 {
+		seed = time.Now().UnixNano()
 	}
+
+	r := rand.New(rand.NewSource(seed))
+	r.Shuffle(len(s.data), func(i, j int) {
+		s.data[i], s.data[j] = s.data[j], s.data[i]
+	})
+
 	return s
 }
 
-// Count returns the number of elements in SliceInt.
-func (s *SliceInt) Count() int {
+// Data returns the raw elements of SliceInt.
+func (s *SliceInt) Data() []int {
+	if s == nil {
+		return nil
+	}
+	return s.data
+}
+
+// Len returns the number of elements in SliceInt.
+func (s *SliceInt) Len() int {
 	return len(s.data)
 }
 
-// Min returns the smallest element in SliceInt (or an error if there aren't any elements).
-func (s *SliceInt) Min() (int, error) {
-	var min int
+// Count is an alias for Len()
+func (s *SliceInt) Count() int {
+	return s.Len()
+}
+
+// Min returns the smallest element in SliceInt.
+func (s *SliceInt) Min() int {
 	if s.data == nil || len(s.data) == 0 {
-		return min, errors.New("SliceInt does not contain any elements")
+		panic("SliceInt does not contain any elements")
 	}
+	// start with the largest int value possible
+	min := math.MaxInt32
 	for _, elem := range s.data {
 		if elem < min {
 			min = elem
 		}
 	}
-	return min, nil
+	return min
 }
 
-// Max returns the largest element in SliceInt (or an error if there aren't any elements).
-func (s *SliceInt) Max() (int, error) {
-	var max int
+// Max returns the largest element in SliceInt.
+func (s *SliceInt) Max() int {
 	if s.data == nil || len(s.data) == 0 {
-		return max, errors.New("SliceInt does not contain any elements")
+		panic("SliceInt does not contain any elements")
 	}
+	// start with the smallest int value possible
+	max := math.MinInt32
 	for _, elem := range s.data {
 		if elem > max {
 			max = elem
 		}
 	}
-	return max, nil
+	return max
 }
 
-// At returns the element in SliceInt at the specified index (or an error if there aren't any elements).
-func (s *SliceInt) At(index int) (int, error) {
-	if s.data == nil || len(s.data) == 0 {
-		return 0, errors.New("SliceInt does not contain any elements")
-	}
-
-	if index >= len(s.data) || index <= 0 {
-		return 0, fmt.Errorf("index %d outside the range of SliceInt", index)
-	}
-
-	return s.data[index], nil
-}
-
-// Equal returns true if the SliceInt is equal to the specified SpliceInt.
+// Equal returns true if the SliceInt is logically equivalent to the specified SliceInt.
 func (s *SliceInt) Equal(x *SliceInt) bool {
+	if s == x {
+		return true
+	}
+
 	if s == nil || x == nil {
-		return s == x
+		return false // has to be false because s == x tested earlier
 	}
 
 	if len(s.data) != len(x.data) {
