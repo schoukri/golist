@@ -306,6 +306,53 @@ func TestSliceInt_Insert(t *testing.T) {
 	}
 }
 
+func TestSliceInt_Remove(t *testing.T) {
+	type args struct {
+		index int
+	}
+	tests := []struct {
+		name  string
+		start *SliceInt
+		args  args
+		want  *SliceInt
+	}{
+		{
+			name:  "remove one at the beginning",
+			start: NewSliceInt(2, 3, 4),
+			args:  args{index: 0},
+			want:  NewSliceInt(3, 4),
+		},
+		{
+			name:  "remove one in the middle",
+			start: NewSliceInt(2, 3, 4),
+			args:  args{index: 1},
+			want:  NewSliceInt(2, 4),
+		},
+		{
+			name:  "remove one at the end",
+			start: NewSliceInt(2, 3, 4),
+			args:  args{index: 2},
+			want:  NewSliceInt(2, 3),
+		},
+		{
+			name:  "remove into nil SliceInt",
+			start: nil,
+			want:  nil,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got := tt.start.Remove(tt.args.index)
+			if !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("SliceInt.Remove() = %v, want %v", got, tt.want)
+			}
+			if got != tt.start {
+				t.Errorf("SliceInt.Remove() pointer not the same: got = %v, start = %v", got, tt.start)
+			}
+		})
+	}
+}
+
 func TestSliceInt_Filter(t *testing.T) {
 	type args struct {
 		fn func(elem int) bool
@@ -818,7 +865,7 @@ func TestSliceInt_Max(t *testing.T) {
 
 func TestSliceInt_Equal(t *testing.T) {
 	type args struct {
-		input *SliceInt
+		s2 *SliceInt
 	}
 	tests := []struct {
 		name  string
@@ -829,49 +876,49 @@ func TestSliceInt_Equal(t *testing.T) {
 		{
 			name:  "nil SliceInt receiver equal nil input SliceInt",
 			start: nil,
-			args:  args{input: nil},
+			args:  args{s2: nil},
 			want:  true,
 		},
 		{
 			name:  "nil SliceInt receiver equal non-nil input SliceInt",
 			start: nil,
-			args:  args{input: NewSliceInt(1)},
+			args:  args{s2: NewSliceInt(1)},
 			want:  false,
 		},
 		{
 			name:  "non-nil SliceInt receiver equal nil input SliceInt",
 			start: NewSliceInt(1),
-			args:  args{input: nil},
+			args:  args{s2: nil},
 			want:  false,
 		},
 		{
 			name:  "SliceInts have different lengths",
 			start: NewSliceInt(1, 2),
-			args:  args{input: NewSliceInt(1)},
+			args:  args{s2: NewSliceInt(1)},
 			want:  false,
 		},
 		{
 			name:  "SliceInts have different elements",
 			start: NewSliceInt(1, 2),
-			args:  args{input: NewSliceInt(1, 3)},
+			args:  args{s2: NewSliceInt(1, 3)},
 			want:  false,
 		},
 		{
 			name:  "SliceInts have the same elements in a different order",
 			start: NewSliceInt(1, 2),
-			args:  args{input: NewSliceInt(2, 1)},
+			args:  args{s2: NewSliceInt(2, 1)},
 			want:  false,
 		},
 		{
 			name:  "SliceInts have the same elements in the same order",
 			start: NewSliceInt(1, 2, 3),
-			args:  args{input: NewSliceInt(1, 2, 3)},
+			args:  args{s2: NewSliceInt(1, 2, 3)},
 			want:  true,
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got := tt.start.Equal(tt.args.input)
+			got := tt.start.Equal(tt.args.s2)
 			if !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("SliceInt.Equal() = %v, want %v", got, tt.want)
 			}

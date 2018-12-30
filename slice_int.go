@@ -87,6 +87,15 @@ func (s *SliceInt) Insert(index int, elems ...int) *SliceInt {
 	return s
 }
 
+// Remove removes the element from SliceInt at the specified index.
+func (s *SliceInt) Remove(index int) *SliceInt {
+	if s == nil {
+		return nil
+	}
+	s.data = append(s.data[:index], s.data[index+1:]...)
+	return s
+}
+
 // Filter removes elements from SliceInt that do not satisfy the filter function.
 func (s *SliceInt) Filter(fn func(elem int) bool) *SliceInt {
 	if s == nil {
@@ -135,7 +144,7 @@ func (s *SliceInt) Sort() *SliceInt {
 	if s == nil {
 		return nil
 	}
-	sort.Ints(s.data)
+	sort.Sort(s)
 	return s
 }
 
@@ -164,9 +173,7 @@ func (s *SliceInt) Shuffle(seed int64) *SliceInt {
 	}
 
 	r := rand.New(rand.NewSource(seed))
-	r.Shuffle(len(s.data), func(i, j int) {
-		s.data[i], s.data[j] = s.data[j], s.data[i]
-	})
+	r.Shuffle(len(s.data), s.Swap)
 
 	return s
 }
@@ -182,6 +189,16 @@ func (s *SliceInt) Data() []int {
 // Len returns the number of elements in SliceInt.
 func (s *SliceInt) Len() int {
 	return len(s.data)
+}
+
+// Less returns true if the SliceInt element at index i is less than the element at index j.
+func (s *SliceInt) Less(i, j int) bool {
+	return s.data[i] < s.data[j]
+}
+
+// Swap swaps the elements in SliceInt specified by the indices i and j.
+func (s *SliceInt) Swap(i, j int) {
+	s.data[i], s.data[j] = s.data[j], s.data[i]
 }
 
 // Count is an alias for Len()
@@ -220,21 +237,21 @@ func (s *SliceInt) Max() int {
 }
 
 // Equal returns true if the SliceInt is logically equivalent to the specified SliceInt.
-func (s *SliceInt) Equal(x *SliceInt) bool {
-	if s == x {
+func (s *SliceInt) Equal(s2 *SliceInt) bool {
+	if s == s2 {
 		return true
 	}
 
-	if s == nil || x == nil {
-		return false // has to be false because s == x tested earlier
+	if s == nil || s2 == nil {
+		return false // has to be false because s == s2 tested earlier
 	}
 
-	if len(s.data) != len(x.data) {
+	if len(s.data) != len(s2.data) {
 		return false
 	}
 
 	for i, elem := range s.data {
-		if elem != x.data[i] {
+		if elem != s2.data[i] {
 			return false
 		}
 	}
