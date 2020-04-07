@@ -925,3 +925,38 @@ func TestSliceInt_Equal(t *testing.T) {
 		})
 	}
 }
+
+func TestSliceInt_Clone(t *testing.T) {
+	tests := []struct {
+		name  string
+		start *SliceInt
+		want  *SliceInt
+	}{
+		{
+			name:  "clone nil SliceInt",
+			start: nil,
+			want:  nil,
+		},
+		{
+			name:  "clone empty SliceInt",
+			start: NewSliceInt(),
+			want:  NewSliceInt(),
+		},
+		{
+			name:  "clone numbers",
+			start: NewSliceInt(2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13),
+			want:  NewSliceInt(2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13),
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got := tt.start.Clone()
+			if !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("SliceInt.Clone = %v, want %v", got, tt.want)
+			}
+			if got != nil && got == tt.start {
+				t.Errorf("SliceInt.Clone pointer is the same: got = %v, start = %v", got, tt.start)
+			}
+		})
+	}
+}

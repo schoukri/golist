@@ -236,6 +236,17 @@ func (s *SliceInt) Max() int {
 	return max
 }
 
+// Clone performs a deep copy of SliceInt and returns it
+func (s *SliceInt) Clone() *SliceInt {
+	if s == nil {
+		return nil
+	}
+	s2 := new(SliceInt)
+	s2.data = make([]int, len(s.data))
+	copy(s2.data, s.data)
+	return s2
+}
+
 // Equal returns true if the SliceInt is logically equivalent to the specified SliceInt.
 func (s *SliceInt) Equal(s2 *SliceInt) bool {
 	if s == s2 {
