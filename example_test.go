@@ -41,8 +41,7 @@ func ExampleSliceInt_Count() {
 }
 
 func ExampleSliceInt_Transform() {
-	data := []int{-5, 3, 2, 21, 0, 40, -4, -20, 100, 40, -9, 18, 21, -33, 40}
-	s := golist.NewSliceInt(data...)
+	s := golist.NewSliceInt(-5, 3, 2, 21, 0, 40, -4, -20, 100, 40, -9, 18, 21, -33, 40)
 
 	s.Transform(func(a int) int {
 		return a * 2

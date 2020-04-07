@@ -2,7 +2,6 @@ package golist
 
 import (
 	"fmt"
-	"math"
 	"math/rand"
 	"sort"
 	"time"
@@ -206,14 +205,14 @@ func (s *SliceInt) Count() int {
 	return s.Len()
 }
 
-// Min returns the smallest element in SliceInt.
+// Min returns the smallest (least ordered) element in SliceInt.
 func (s *SliceInt) Min() int {
 	if s.data == nil || len(s.data) == 0 {
 		panic("SliceInt does not contain any elements")
 	}
-	// start with the largest int value possible
-	min := math.MaxInt32
-	for _, elem := range s.data {
+	// start with the first value
+	min := s.data[0]
+	for _, elem := range s.data[1:] {
 		if elem < min {
 			min = elem
 		}
@@ -221,14 +220,14 @@ func (s *SliceInt) Min() int {
 	return min
 }
 
-// Max returns the largest element in SliceInt.
+// Max returns the largest (greatest ordered) element in SliceInt.
 func (s *SliceInt) Max() int {
 	if s.data == nil || len(s.data) == 0 {
 		panic("SliceInt does not contain any elements")
 	}
-	// start with the smallest int value possible
-	max := math.MinInt32
-	for _, elem := range s.data {
+	// start with the first value
+	max := s.data[0]
+	for _, elem := range s.data[1:] {
 		if elem > max {
 			max = elem
 		}

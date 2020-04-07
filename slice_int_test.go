@@ -763,7 +763,12 @@ func TestSliceInt_Min(t *testing.T) {
 			wantPanic: true,
 		},
 		{
-			name:  "data numbers (sorted, unique values",
+			name:  "one number",
+			start: NewSliceInt(13),
+			want:  13,
+		},
+		{
+			name:  "data numbers (sorted, unique values)",
 			start: NewSliceInt(2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13),
 			want:  2,
 		},
@@ -822,7 +827,12 @@ func TestSliceInt_Max(t *testing.T) {
 			wantPanic: true,
 		},
 		{
-			name:  "data numbers (sorted, unique values",
+			name:  "one number",
+			start: NewSliceInt(13),
+			want:  13,
+		},
+		{
+			name:  "data numbers (sorted, unique values)",
 			start: NewSliceInt(2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13),
 			want:  13,
 		},
