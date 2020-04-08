@@ -763,7 +763,12 @@ func TestSliceInt_Min(t *testing.T) {
 			wantPanic: true,
 		},
 		{
-			name:  "data numbers (sorted, unique values",
+			name:  "one number",
+			start: NewSliceInt(13),
+			want:  13,
+		},
+		{
+			name:  "data numbers (sorted, unique values)",
 			start: NewSliceInt(2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13),
 			want:  2,
 		},
@@ -822,7 +827,12 @@ func TestSliceInt_Max(t *testing.T) {
 			wantPanic: true,
 		},
 		{
-			name:  "data numbers (sorted, unique values",
+			name:  "one number",
+			start: NewSliceInt(13),
+			want:  13,
+		},
+		{
+			name:  "data numbers (sorted, unique values)",
 			start: NewSliceInt(2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13),
 			want:  13,
 		},
@@ -921,6 +931,41 @@ func TestSliceInt_Equal(t *testing.T) {
 			got := tt.start.Equal(tt.args.s2)
 			if !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("SliceInt.Equal() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestSliceInt_Clone(t *testing.T) {
+	tests := []struct {
+		name  string
+		start *SliceInt
+		want  *SliceInt
+	}{
+		{
+			name:  "clone nil SliceInt",
+			start: nil,
+			want:  nil,
+		},
+		{
+			name:  "clone empty SliceInt",
+			start: NewSliceInt(),
+			want:  NewSliceInt(),
+		},
+		{
+			name:  "clone numbers",
+			start: NewSliceInt(2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13),
+			want:  NewSliceInt(2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13),
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got := tt.start.Clone()
+			if !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("SliceInt.Clone = %v, want %v", got, tt.want)
+			}
+			if got != nil && got == tt.start {
+				t.Errorf("SliceInt.Clone pointer is the same: got = %v, start = %v", got, tt.start)
 			}
 		})
 	}
