@@ -137,7 +137,7 @@ package {{ .PackageName }}
 import (
 	"fmt"
 	"math/rand"
-	{{ if .Sortable -}}
+	{{- if .Sortable }}
 	"sort"
 	{{- end }}
 	"time"
@@ -327,7 +327,7 @@ func (s *{{ .OutputName }}) Swap(i, j int) {
 	s.data[i], s.data[j] = s.data[j], s.data[i]
 }
 
-{{ if .Sortable -}}
+{{- if .Sortable }}
 // Less returns true if the {{ .OutputName }} element at index i is less than the element at index j.
 func (s *{{ .OutputName }}) Less(i, j int) bool {
 	return s.data[i] < s.data[j]
