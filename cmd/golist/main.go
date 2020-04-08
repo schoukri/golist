@@ -326,8 +326,7 @@ func (s *{{ .OutputName }}) Len() int {
 func (s *{{ .OutputName }}) Swap(i, j int) {
 	s.data[i], s.data[j] = s.data[j], s.data[i]
 }
-
-{{- if .Sortable }}
+{{ if .Sortable }}
 // Less returns true if the {{ .OutputName }} element at index i is less than the element at index j.
 func (s *{{ .OutputName }}) Less(i, j int) bool {
 	return s.data[i] < s.data[j]
@@ -371,8 +370,7 @@ func (s *{{ .OutputName }}) Max() {{ .TypeName }} {
 	}
 	return max
 }
-{{- end }}
-
+{{ end }}
 // Clone performs a deep copy of {{ .OutputName }} and returns it
 func (s *{{ .OutputName }}) Clone() *{{ .OutputName }} {
 	if s == nil {

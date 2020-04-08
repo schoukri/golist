@@ -37,4 +37,4 @@ Here is an example that starts with a slice of integers, multiplies each item by
 
 ## Warning
 
-Golist is in active development and is not yet ready for use in production. The API is experimental and is subject to change without notice. The API will be finalized with the release of version 1. Suggestions or contributions to improve Golist and help shape its design are welcome and encouraged!
+Golist is in active development and is not yet ready for use in production. The API is experimental and is subject to change without notice. Suggestions or contributions to improve Golist and help shape its design are welcome and encouraged!
